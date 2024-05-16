@@ -105,8 +105,6 @@ class AddressBook(UserDict):
         return upcoming_birthdays
     
         
-
-
 def input_error(func):
     def inner(*args, **kwargs):
         try:
@@ -135,9 +133,6 @@ def add_birthday(args, book:AddressBook):
         return 'The birthday date was added'
 
 
-
-    
-
 @input_error
 def show_birthday(args, book:AddressBook):
     if len(args) < 1: #check if we have all arguments to work with from the list
@@ -151,6 +146,7 @@ def show_birthday(args, book:AddressBook):
 
      
     # реалізація
+
 
 @input_error
 def birthdays(book:AddressBook):
@@ -245,7 +241,6 @@ def main():
             print(birthdays(book))
         else:
             print("Invalid command.")
-
 
 
 if __name__ == "__main__":

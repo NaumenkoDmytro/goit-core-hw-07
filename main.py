@@ -19,15 +19,13 @@ class Phone(Field):
         if not value.isdigit() or len(value) != 10:
             raise ValueError("The number is not valid!")
         super().__init__(value)
-
+        self.value = value
 
 
 class Birthday(Field):
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, "%d.%m.%Y")
-            # Додайте перевірку коректності даних
-            # та перетворіть рядок на об'єкт datetime
+            self.value = datetime.strptime(value, "%d.%m.%Y").date()
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
@@ -40,8 +38,8 @@ class Record:
 
 
     def add_birthday(self, value):
-        self.add_birthday = Birthday(value)
-
+        self.birthday = Birthday(value)
+    
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
@@ -97,7 +95,7 @@ class AddressBook(UserDict):
 
         for record in self.data.values():
             if record.birthday:
-                user_birthday = record.birthday.value.date()
+                user_birthday = record.birthday.value
                 next_birthday = user_birthday.replace(year=today.year) 
             if next_birthday < today:
                 next_birthday = user_birthday.replace(year=today.year+1)
@@ -105,6 +103,8 @@ class AddressBook(UserDict):
                 upcoming_birthdays.append({"name": record.name.value, "birthday": next_birthday.strftime("%d.%m.%Y") })
         
         return upcoming_birthdays
+    
+        
 
 
 def input_error(func):
@@ -123,25 +123,47 @@ def input_error(func):
 
 
 @input_error
-def add_birthday(args, book):
-    pass
+def add_birthday(args, book:AddressBook):
+    if len(args) < 2: #check if we have all arguments to work with from the list
+        raise ValueError('Please enter the Name and birthday date')
+    name, date = args
+    record:Record = book.find(name)
+    if record is None:
+        return "Sorry no User found"
+    else:
+        record.add_birthday(date)
+        return 'The birthday date was added'
+
+
+
+    
+
+@input_error
+def show_birthday(args, book:AddressBook):
+    if len(args) < 1: #check if we have all arguments to work with from the list
+        raise ValueError('Please enter the Name')
+    name = args[0] # we do it to ge a string not list :)
+    record:Record = book.find(name)
+    if record is None or record.birthday is None:
+        return "Sorry no data about this user's birthday date"
+    else:
+        return record.birthday.value
+
+     
     # реалізація
 
 @input_error
-def show_birthday(args, book):
-    pass
-    # реалізація
-
-@input_error
-def birthdays(args, book):
-    pass
-    # реалізація
+def birthdays(book:AddressBook):
+    birthday_list = [str(record) for record in book.get_upcoming_birthdays()]
+    return '\n'.join(birthday_list) if birthday_list else 'No data available'
 
 
 @input_error
 #Function that show all contacts.
 def show_all(book:AddressBook):
-    return 
+    records = [str(record) for record in book.values()]
+    records_string = '\n'.join(records) 
+    return records_string if records else 'No data available'
 
 
 @input_error
@@ -187,7 +209,9 @@ def add_contact(args, book:AddressBook):
     if record is None:
         record = Record(name)
         book.add_record(record)
-        record.add_phone(phone)
+    if phone in [phone.value for phone in record.phones]:
+        return "The number is already exist"
+    record.add_phone(phone)
     return "Contact added."
 
 
@@ -218,7 +242,7 @@ def main():
         elif command == "show-birthday":
             print(show_birthday(args, book))
         elif command == "birthdays":
-            print(birthdays(args, book))
+            print(birthdays(book))
         else:
             print("Invalid command.")
 

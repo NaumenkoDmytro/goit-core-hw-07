@@ -1,5 +1,5 @@
 from collections import UserDict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
 
 class Field:
     def __init__(self, value):

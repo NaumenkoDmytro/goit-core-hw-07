@@ -97,10 +97,10 @@ class AddressBook(UserDict):
             if record.birthday:
                 user_birthday = record.birthday.value
                 next_birthday = user_birthday.replace(year=today.year) 
-            if next_birthday < today:
-                next_birthday = user_birthday.replace(year=today.year+1)
-            if (next_birthday - today).days <= 7:
-                upcoming_birthdays.append({"name": record.name.value, "birthday": next_birthday.strftime("%d.%m.%Y") })
+                if next_birthday < today:
+                    next_birthday = user_birthday.replace(year=today.year+1)
+                if (next_birthday - today).days <= 7:
+                    upcoming_birthdays.append({"name": record.name.value, "birthday": next_birthday.strftime("%d.%m.%Y") })
         
         return upcoming_birthdays
     
